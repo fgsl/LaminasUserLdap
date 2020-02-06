@@ -1,0 +1,9 @@
+.buildpath
+/nbproject
+/tests/data/logs/*
+/tests/config/autoload/laminasuserldap.global.php
+composer.lock
+composer.phar
+/vendor
+.project
+.settings/

@@ -1,0 +1,45 @@
+{
+	"name" : "fgsl/laminas-user-ldap",
+	"description" : "Laminas User LDAP Authentication",
+	"type" : "library",
+	"keywords" : [
+		"laminas",
+		"laminasuser",
+		"ldap"
+	],
+	"homepage" : "https://github.com/fgsl/laminas-user-ldap.git",
+	"license" : "New BSD License",
+	"authors" : [{
+			"name" : "Flávio Gome da Silva Lisboa",
+			"email" : "flavio.lisboa@fgsl.eti.br",
+			"homepage" : "http://www.fgsl.eti.br",
+			"role" : "Master"
+		}
+	],
+	"require" : {
+		"php" : ">=7.2",
+		"laminas/laminas-mvc" : "3.1.*",
+		"fgsl/laminas-user" : "0.1.*",
+		"laminas/laminas-log": "^2.12",
+		"laminas/laminas-ldap": "^2.10",
+		"laminas/laminas-permissions-rbac": "^3.0",
+		"laminas/laminas-permissions-acl": "^2.7"
+	},
+	"require-dev" : {
+		"squizlabs/php_codesniffer" : "1.4.*",
+		"php-coveralls/php-coveralls" : "v2.2.0",
+		"phpunit/phpunit" : "^8.0.0"
+	},
+	"autoload" : {
+		"psr-4" : {
+			"LaminasUserLdap\\" : "src/",
+			"LaminasUserLdapTest\\" : "tests/src/"
+		},
+		"classmap" : [
+			"src/Module.php"
+		]
+	},
+	"config" : {
+		"secure-http" : false
+	}
+}

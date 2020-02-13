@@ -44,6 +44,12 @@ class LdapAuth extends AbstractAdapter
 
     /** @var \LaminasUserLdap\Entity\User */
     protected $entity;
+    
+    /** @var string **/
+    protected $identity;
+    
+    /** @var string **/
+    protected $credential;
 
     public function authenticate(AuthEvent $e)
     {
@@ -59,8 +65,8 @@ class LdapAuth extends AbstractAdapter
         }
 
         // Get POST values
-        $identity = $e->getRequest()->getPost()->get('identity');
-        $credential = $e->getRequest()->getPost()->get('credential');
+        $identity = $e->getRequest()->getPost()->get('identity',$this->identity);
+        $credential = $e->getRequest()->getPost()->get('credential',$this->credential);        
 
         // Start auth against LDAP
         $ldapAuthAdapter = $this->serviceManager->get('LaminasUserLdap\LdapAdapter');
@@ -213,5 +219,21 @@ class LdapAuth extends AbstractAdapter
         $entityClass = $this->getOptions()->getUserEntityClass();
         $this->entity = new $entityClass;
         return $this->entity;
+    }
+    
+    /**
+     * @param string $identity
+     */
+    public function setIdentity($identity)
+    {
+        $this->identity = $identity;
+    }
+    
+    /**
+     * @param string $credential
+     */
+    public function setCredential($credential)
+    {
+        $this->credential = $credential;
     }
 }

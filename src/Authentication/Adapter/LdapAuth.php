@@ -227,6 +227,7 @@ class LdapAuth extends AbstractAdapter
     public function setIdentity($identity)
     {
         $this->identity = $identity;
+        return $this;
     }
     
     /**
@@ -235,5 +236,6 @@ class LdapAuth extends AbstractAdapter
     public function setCredential($credential)
     {
         $this->credential = $credential;
+        return $this;
     }
 }

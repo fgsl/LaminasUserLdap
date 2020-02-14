@@ -19,11 +19,11 @@
 	"require" : {
 		"php" : ">=7.2",
 		"laminas/laminas-mvc" : "3.1.*",
-		"fgsl/laminas-user" : "0.1.*",
-		"laminas/laminas-log": "^2.12",
-		"laminas/laminas-ldap": "^2.10",
-		"laminas/laminas-permissions-rbac": "^3.0",
-		"laminas/laminas-permissions-acl": "^2.7"
+		"fgsl/laminas-user" : "0.2.*",
+		"laminas/laminas-log" : "^2.12",
+		"laminas/laminas-ldap" : "^2.10",
+		"laminas/laminas-permissions-rbac" : "^3.0",
+		"laminas/laminas-permissions-acl" : "^2.7"
 	},
 	"require-dev" : {
 		"squizlabs/php_codesniffer" : "1.4.*",

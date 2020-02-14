@@ -50,30 +50,53 @@ class LdapAuth extends AbstractAdapter
     
     /** @var string **/
     protected $credential;
+    
+    /** @var AuthEvent **/
+    protected $e;
+    
+    /**
+     * Method to keep compatibility with ZfcUserLdap
+     * @param AuthEvent $e
+     */
+    public function authenticateEvent(AuthEvent $e)
+    {
+        $this->e = $e;
+        $this->authenticate();
+    }
+    
 
-    public function authenticate(AuthEvent $e)
+    public function authenticate()
     {
         $userObject = null;
         $zulConfig = $this->serviceManager->get('LaminasUserLdap\Config');
 
         if ($this->isSatisfied()) {
             $storage = $this->getStorage()->read();
-            $e->setIdentity($storage['identity'])
-                    ->setCode(AuthenticationResult::SUCCESS)
-                    ->setMessages(array('Authentication successful.'));
+            if ($this->e instanceof AuthEvent){
+                $this->e->setIdentity($storage['identity'])
+                        ->setCode(AuthenticationResult::SUCCESS)
+                        ->setMessages(array('Authentication successful.'));
+            }
             return;
         }
 
         // Get POST values
-        $identity = $e->getRequest()->getPost()->get('identity',$this->identity);
-        $credential = $e->getRequest()->getPost()->get('credential',$this->credential);        
+        $identity = $this->identity;
+        $credential = $this->credential;
+        
+        if ($this->e instanceof AuthEvent){
+            $identity = $this->e->getRequest()->getPost()->get('identity');
+            $credential = $this->e->getRequest()->getPost()->get('credential');
+        }
 
         // Start auth against LDAP
         $ldapAuthAdapter = $this->serviceManager->get('LaminasUserLdap\LdapAdapter');
         if ($ldapAuthAdapter->authenticate($identity, $credential) !== true) {
             // Password does not match
-            $e->setCode(AuthenticationResult::FAILURE_CREDENTIAL_INVALID)
-                    ->setMessages(array('Supplied credential is invalid.'));
+            if ($this->e instanceof AuthEvent){
+                $this->e->setCode(AuthenticationResult::FAILURE_CREDENTIAL_INVALID)
+                        ->setMessages(array('Supplied credential is invalid.'));
+            }
             $this->setSatisfied(false);
             return false;
         }
@@ -114,8 +137,10 @@ class LdapAuth extends AbstractAdapter
 
         // Something happened that should never happen
         if (!$userObject) {
-            $e->setCode(AuthenticationResult::FAILURE_IDENTITY_NOT_FOUND)
-                    ->setMessages(array('A record with the supplied identity could not be found.'));
+            if ($this->e instanceof AuthEvent){
+                $this->e->setCode(AuthenticationResult::FAILURE_IDENTITY_NOT_FOUND)
+                        ->setMessages(array('A record with the supplied identity could not be found.'));
+            }
             $this->setSatisfied(false);
             return false;
         }
@@ -125,8 +150,10 @@ class LdapAuth extends AbstractAdapter
         if ($this->getOptions()->getEnableUserState()) {
             // Don't allow user to login if state is not in allowed list
             if (!in_array($userObject->getState(), $this->getOptions()->getAllowedLoginStates())) {
-                $e->setCode(AuthenticationResult::FAILURE_UNCATEGORIZED)
-                        ->setMessages(array('A record with the supplied identity is not active.'));
+                if ($this->e instanceof AuthEvent){
+                    $this->e->setCode(AuthenticationResult::FAILURE_UNCATEGORIZED)
+                            ->setMessages(array('A record with the supplied identity is not active.'));
+                }
                 $this->setSatisfied(false);
                 return false;
             }
@@ -135,15 +162,16 @@ class LdapAuth extends AbstractAdapter
         // Set the roles for stuff like ZfcRbac
         $userObject->setRoles($this->getMapper()->getLdapRoles($ldapObj));
         // Success!
-        $e->setIdentity($userObject);
-
         $this->setSatisfied(true);
         $storage = $this->getStorage()->read();
         $storage['identity'] = $userObject;
         $this->getStorage()->write($storage);
-        $e->setCode(AuthenticationResult::SUCCESS)
-                ->setMessages(array('Authentication successful.'))
-                ->stopPropagation();
+        if ($this->e instanceof AuthEvent){
+            $this->e->setIdentity($userObject);
+            $this->e->setCode(AuthenticationResult::SUCCESS)
+                    ->setMessages(array('Authentication successful.'))
+                    ->stopPropagation();
+        }
     }
 
     /**
